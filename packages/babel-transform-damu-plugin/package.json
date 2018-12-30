@@ -1,15 +1,15 @@
 {
-  "name": "babel-transform-damu",
+  "name": "@damu/babel-transform-damu-plugin",
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/tanhauhau/madu.git",
   "author": "Tan Li Hau <lhtan93@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@babel/plugin-syntax-jsx": "^7.2.0"
+    "@babel/plugin-syntax-jsx": "^7.2.0",
+    "@babel/types": "^7.2.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.2.2",
     "@babel/helper-transform-fixture-test-runner": "^7.1.2"
   }
 }

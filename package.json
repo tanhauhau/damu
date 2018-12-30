@@ -10,11 +10,14 @@
     "packages/*"
   ],
   "devDependencies": {
-    "ava": "^1.0.1",
+    "babel-core": "^6.26.3",
+    "babel-jest": "^23.6.0",
+    "babel-preset-env": "^1.7.0",
+    "jest": "^23.6.0",
     "lerna": "^3.8.0",
     "prettier-eslint": "^8.8.2"
   },
   "scripts": {
-    "test": "ava"
+    "test": "jest"
   }
 }

@@ -6,7 +6,10 @@
   "author": "Tan Li Hau <lhtan93@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.2.2",
     "@babel/plugin-syntax-jsx": "^7.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/helper-transform-fixture-test-runner": "^7.1.2"
   }
 }

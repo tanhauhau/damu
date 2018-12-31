@@ -1,7 +1,7 @@
 {
   "name": "@damu/babel-transform-damu-plugin",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.js",
   "repository": "https://github.com/tanhauhau/madu.git",
   "author": "Tan Li Hau <lhtan93@gmail.com>",
   "license": "MIT",

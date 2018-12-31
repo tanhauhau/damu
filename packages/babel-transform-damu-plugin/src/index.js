@@ -46,7 +46,10 @@ export default declare((api, options) => {
       },
       Program: {
         exit(path) {
-          path.scope.bindings.Damu.path.remove();
+          const DamuBindings = path.scope.bindings.Damu;
+          if (DamuBindings) {
+            DamuBindings.path.remove();
+          }
           // // console.log(path.scope.bindings.Damu.referencePaths.length);
           // console.log('');
           // console.log('');

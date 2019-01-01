@@ -12,7 +12,7 @@ export default declare((api, options) => {
         const { identifier, statements } = transformJSXElement(path);
         path.replaceWith(identifier);
         statements.reverse().forEach(statement => {
-          path.scope.path.unshiftContainer('body', statement);
+          unshiftIntoBlock(path.scope.path, statement);
         });
       },
       JSXFragment(path) {
@@ -31,7 +31,7 @@ export default declare((api, options) => {
 
         path.replaceWith(toArray(identifiers));
         statements.reverse().forEach(statement => {
-          path.scope.path.unshiftContainer('body', statement);
+          unshiftIntoBlock(path.scope.path, statement);
         });
       },
       CallExpression: {
@@ -136,6 +136,8 @@ function transformJSXExpression(path, parent) {
       return transformLogicalExpression(path.get('expression'), parent);
     case 'ConditionalExpression':
       return transformConditionalExpression(path.get('expression'), parent);
+    default:
+      return transformElement(path.get('expression'), parent);
   }
 
   throw new Error('Unknown expression type: ' + path.node.expression.type);
@@ -154,6 +156,11 @@ function transformBinaryExpression(path, parent) {
 }
 
 function transformCallExpression(path, parent) {
+  if (isMapCallExpression(path.node)) {
+    return transformMapCallExpresion(path, parent);
+  }
+
+  // normal call expression
   const identifier = path.scope.generateUidIdentifier('result');
   const statements = [declareConst(identifier, path.node)];
   if (parent) {
@@ -163,6 +170,38 @@ function transformCallExpression(path, parent) {
     identifier,
     statements,
   };
+}
+
+function transformMapCallExpresion(path, parent) {
+  normalizeBlockStatement(path.get('arguments.0.body'));
+  if (parent) {
+    // arr.forEach(i => parent.appendChild(i))
+    path.get('callee.property').replaceWith(t.identifier('forEach'));
+    const mapperBody = path.get('arguments.0.body.body');
+    const returnStatement = mapperBody.find(
+      b => b.node.type === 'ReturnStatement'
+    );
+    if (returnStatement) {
+      returnStatement.replaceWith(
+        appendChild(parent, returnStatement.node.argument)
+      );
+    }
+    const statements = [t.expressionStatement(path.node)];
+    return { identifier: null, statements };
+  } else {
+    // identifier = arr.map(i => i)
+    const identifier = path.scope.generateUidIdentifier('lists');
+    // console.log(path.node);
+    const statements = [declareConst(identifier, path.node)];
+    return { identifier, statements };
+  }
+}
+
+function normalizeBlockStatement(path) {
+  if (path.node.type !== 'BlockStatement') {
+    path.replaceWith(t.blockStatement([t.returnStatement(path.node)]));
+  }
+  return path;
 }
 
 function transformLogicalExpression(path, parent) {
@@ -271,6 +310,13 @@ function declareConst(identifier, value) {
 }
 
 function appendChild(parent, child) {
+  if (child.type === 'ArrayExpression') {
+    return t.expressionStatement(
+      t.sequenceExpression(
+        child.elements.map(c => appendChild(parent, c).expression)
+      )
+    );
+  }
   return t.expressionStatement(
     t.callExpression(t.memberExpression(parent, t.identifier('appendChild')), [
       child,
@@ -324,5 +370,32 @@ function isDamuRender(node) {
     node.callee.object.name === 'Damu' &&
     node.callee.property.type === 'Identifier' &&
     node.callee.property.name === 'render'
+  );
+}
+
+function unshiftIntoBlock(path, statement) {
+  switch (path.node.type) {
+    case 'ArrowFunctionExpression':
+    case 'FunctionExpression':
+    case 'FunctionDeclaration':
+      path.get('body').unshiftContainer('body', statement);
+      return;
+    default:
+      path.unshiftContainer('body', statement);
+  }
+}
+
+function isMapCallExpression(node) {
+  return (
+    node.callee &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.property &&
+    node.callee.property.type === 'Identifier' &&
+    node.callee.property.name === 'map' &&
+    node.arguments &&
+    node.arguments.length === 1 &&
+    ['FunctionExpression', 'ArrowFunctionExpression'].includes(
+      node.arguments[0].type
+    )
   );
 }

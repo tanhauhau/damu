@@ -4,19 +4,19 @@ self.__precacheManifest = [
     "url": "/damu/static/js/runtime~main.3395325a.js"
   },
   {
-    "revision": "589973df4290975f4ea3",
-    "url": "/damu/static/js/main.589973df.chunk.js"
+    "revision": "4f4024bb83fa6d55cbd6",
+    "url": "/damu/static/js/main.4f4024bb.chunk.js"
   },
   {
     "revision": "a3ec4235b5bb4f0b8502",
     "url": "/damu/static/js/1.a3ec4235.chunk.js"
   },
   {
-    "revision": "589973df4290975f4ea3",
-    "url": "/damu/static/css/main.207a2701.chunk.css"
+    "revision": "4f4024bb83fa6d55cbd6",
+    "url": "/damu/static/css/main.7efec5bc.chunk.css"
   },
   {
-    "revision": "b9f6556c7469dc63ba782b1c10df2998",
+    "revision": "44c85989ff54a527f1b137418d4a202a",
     "url": "/damu/index.html"
   }
 ];

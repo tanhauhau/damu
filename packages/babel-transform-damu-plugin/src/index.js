@@ -19,7 +19,7 @@ export default declare((api, options) => {
         const { identifiers, statements } = path
           .get('children')
           .filter(isEmptyJSXText)
-          .map(transformElement)
+          .map(elem => transformElement(elem))
           .reduce(
             (result, { identifier, statements }) => {
               result.identifiers.push(identifier);
@@ -63,18 +63,25 @@ export default declare((api, options) => {
   };
 });
 
-function transformElement(path) {
+function transformElement(path, parent) {
   switch (path.node.type) {
     case 'JSXElement':
-      return transformJSXElement(path);
+      return transformJSXElement(path, parent);
     case 'JSXText':
-      return transformJSXText(path);
+    case 'StringLiteral':
+      return transformJSXText(path, parent);
+    case 'JSXExpressionContainer':
+      return transformJSXExpression(path, parent);
+    case 'Identifier':
+    case 'MemberExpression':
+      return transformIdentifier(path, parent);
+
     default:
-      throw new Error('Unknown element type:', path.node.type);
+      throw new Error('Unknown element type: ' + path.node.type);
   }
 }
 
-function transformJSXElement(path) {
+function transformJSXElement(path, parent) {
   const name = getIdentifierName(path.node.openingElement.name);
   const identifier = path.scope.generateUidIdentifier(name);
 
@@ -91,23 +98,129 @@ function transformJSXElement(path) {
   const childrens = path
     .get('children')
     .filter(isEmptyJSXText)
-    .map(transformElement)
-    .map(({ identifier: child, statements }) => [
-      ...statements,
-      appendChild(identifier, child),
-    ]);
+    .map(elem => transformElement(elem, identifier))
+    .map(({ statements }) => statements);
   childrens.forEach(children => result.push(...children));
+
+  if (parent) {
+    result.push(appendChild(parent, identifier));
+  }
+
   return {
     identifier,
     statements: result,
   };
 }
 
-function transformJSXText(path) {
+function transformJSXText(path, parent) {
   const identifier = path.scope.generateUidIdentifier('text');
+  const statements = [
+    documentCreateTextNode(identifier, t.stringLiteral(path.node.value)),
+  ];
+  if (parent) {
+    statements.push(appendChild(parent, identifier));
+  }
   return {
     identifier,
-    statements: [documentCreateTextNode(identifier, path.node.value)],
+    statements,
+  };
+}
+
+function transformJSXExpression(path, parent) {
+  switch (path.node.expression.type) {
+    case 'BinaryExpression':
+      return transformBinaryExpression(path.get('expression'), parent);
+    case 'CallExpression':
+      return transformCallExpression(path.get('expression'), parent);
+    case 'LogicalExpression':
+      return transformLogicalExpression(path.get('expression'), parent);
+    case 'ConditionalExpression':
+      return transformConditionalExpression(path.get('expression'), parent);
+  }
+
+  throw new Error('Unknown expression type: ' + path.node.expression.type);
+}
+
+function transformBinaryExpression(path, parent) {
+  const identifier = path.scope.generateUidIdentifier('result');
+  const statements = [documentCreateTextNode(identifier, path.node)];
+  if (parent) {
+    statements.push(appendChild(parent, identifier));
+  }
+  return {
+    identifier,
+    statements,
+  };
+}
+
+function transformCallExpression(path, parent) {
+  const identifier = path.scope.generateUidIdentifier('result');
+  const statements = [declareConst(identifier, path.node)];
+  if (parent) {
+    statements.push(appendChild(parent, identifier));
+  }
+  return {
+    identifier,
+    statements,
+  };
+}
+
+function transformLogicalExpression(path, parent) {
+  switch (path.node.operator) {
+    case '&&':
+      return transformLogicalAndExpression(path, parent);
+    case '||':
+      return transformLogicalOrExpression(path, parent);
+  }
+  throw new Error('Unknown logical operator: ' + path.node.operator);
+}
+
+function transformLogicalAndExpression(path, parent) {
+  const identifier = path.scope.generateUidIdentifier('result');
+  const consequent = transformElement(path.get('right'), parent);
+  const statements = [ifBlock(path.node.left, consequent.statements)];
+
+  return {
+    identifier,
+    statements,
+  };
+}
+
+function transformLogicalOrExpression(path, parent) {
+  const identifier = path.scope.generateUidIdentifier('result');
+  const consequent = transformElement(path.get('left'), parent);
+  const alternate = transformElement(path.get('right'), parent);
+
+  const statements = [
+    ifBlock(path.node.left, consequent.statements, alternate.statements),
+  ];
+
+  return {
+    identifier,
+    statements,
+  };
+}
+
+function transformConditionalExpression(path, parent) {
+  const identifier = path.scope.generateUidIdentifier('result');
+  const consequent = transformElement(path.get('consequent'), parent);
+  const alternate = transformElement(path.get('alternate'), parent);
+
+  const statements = [
+    ifBlock(path.node.test, consequent.statements, alternate.statements),
+  ];
+  return {
+    identifier,
+    statements,
+  };
+}
+
+function transformIdentifier(path, parent) {
+  const identifier = path.node;
+  const statements = parent ? [appendChild(parent, identifier)] : [];
+  return {
+    identifier,
+    statements,
   };
 }
 
@@ -120,7 +233,7 @@ function getIdentifierName(node) {
     case 'JSXIdentifier':
       return node.name;
     default:
-      throw new Error('Unknown type: ', node.type);
+      throw new Error('Unknown type: ' + node.type);
   }
 }
 
@@ -138,7 +251,7 @@ function documentCreateElement(identifier, elemName) {
   );
 }
 
-function documentCreateTextNode(identifier, text) {
+function documentCreateTextNode(identifier, node) {
   return declareConst(
     identifier,
     t.callExpression(
@@ -146,7 +259,7 @@ function documentCreateTextNode(identifier, text) {
         t.identifier('document'),
         t.identifier('createTextNode')
       ),
-      [t.stringLiteral(text)]
+      [node]
     )
   );
 }
@@ -182,6 +295,24 @@ function isEmptyJSXText(path) {
 
 function toArray(list) {
   return t.arrayExpression(list);
+}
+
+function ifBlock(condition, thenCase, elseCase) {
+  const thenCaseArray = thenCase
+    ? Array.isArray(thenCase)
+      ? thenCase
+      : [thenCase]
+    : [];
+  const elseCaseArray = elseCase
+    ? Array.isArray(elseCase)
+      ? elseCase
+      : [elseCase]
+    : [];
+  return t.ifStatement(
+    condition,
+    t.blockStatement(thenCaseArray),
+    elseCase ? t.blockStatement(elseCaseArray) : null
+  );
 }
 
 function isDamuRender(node) {

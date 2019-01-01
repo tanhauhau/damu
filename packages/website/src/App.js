@@ -121,7 +121,7 @@ function simplePrettier(code) {
   return code
     .split('\n')
     .filter(line => line.trim() !== '')
-    .map(line => (/^(const|document)/.test(line) ? '\n' + line : line))
+    .map(line => (/^(const|document|if)/.test(line) ? '\n' + line : line))
     .join('\n')
     .trim();
 }

@@ -6,7 +6,7 @@
 
 Converts jsx to vanilla javascript
 
-
+[Try out Damu here](https://lihautan.com/damu/)
 
 Converts:
 
@@ -38,7 +38,6 @@ div.appendChild(a);
 const app = document.querySelector('#app');
 app.appendChild(div);
 ```
-
 
 ## The Damu-Madu Project
 

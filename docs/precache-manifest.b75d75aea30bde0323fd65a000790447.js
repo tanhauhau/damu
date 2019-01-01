@@ -16,7 +16,7 @@ self.__precacheManifest = [
     "url": "/damu/static/css/main.207a2701.chunk.css"
   },
   {
-    "revision": "dadea4a0bdeb4ba7e347ec9a4cc8d003",
+    "revision": "cfb746073112308c40bf899e2d6e7da0",
     "url": "/damu/index.html"
   }
 ];

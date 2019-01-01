@@ -74,6 +74,11 @@ class App extends Component {
       })
       .catch(error => {
         this.setState({ transpiled: '', error: error.message });
+        if (this.iframe) {
+          while (this.iframe.firstChild) {
+            this.iframe.removeChild(this.iframe.firstChild);
+          }
+        }
       });
   };
 

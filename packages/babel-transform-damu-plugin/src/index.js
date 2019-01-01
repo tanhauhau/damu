@@ -11,8 +11,8 @@ export default declare((api, options) => {
       JSXElement(path) {
         const { identifier, statements } = transformJSXElement(path);
         path.replaceWith(identifier);
-        statements.reverse().forEach(statement => {
-          unshiftIntoBlock(path.scope.path, statement);
+        statements.forEach(statement => {
+          unshiftIntoBlock(path, statement);
         });
       },
       JSXFragment(path) {
@@ -30,8 +30,8 @@ export default declare((api, options) => {
           );
 
         path.replaceWith(toArray(identifiers));
-        statements.reverse().forEach(statement => {
-          unshiftIntoBlock(path.scope.path, statement);
+        statements.forEach(statement => {
+          unshiftIntoBlock(path, statement);
         });
       },
       CallExpression: {
@@ -310,18 +310,29 @@ function declareConst(identifier, value) {
 }
 
 function appendChild(parent, child) {
-  if (child.type === 'ArrayExpression') {
-    return t.expressionStatement(
-      t.sequenceExpression(
-        child.elements.map(c => appendChild(parent, c).expression)
-      )
-    );
+  switch (child.type) {
+    case 'ArrayExpression':
+      return t.expressionStatement(
+        t.sequenceExpression(
+          child.elements.map(c => appendChild(parent, c).expression)
+        )
+      );
+    case 'JSXFragment':
+      return t.expressionStatement(
+        t.sequenceExpression(
+          child.children
+            .filter(isEmptyJSXTextNode)
+            .map(c => appendChild(parent, c).expression)
+        )
+      );
+    default:
+      return t.expressionStatement(
+        t.callExpression(
+          t.memberExpression(parent, t.identifier('appendChild')),
+          [child]
+        )
+      );
   }
-  return t.expressionStatement(
-    t.callExpression(t.memberExpression(parent, t.identifier('appendChild')), [
-      child,
-    ])
-  );
 }
 
 function setAttribute(identifier, key, value) {
@@ -337,6 +348,9 @@ function setAttribute(identifier, key, value) {
 
 function isEmptyJSXText(path) {
   return !(path.node.type === 'JSXText' && path.node.value.trim() === '');
+}
+function isEmptyJSXTextNode(node) {
+  return !(node.type === 'JSXText' && node.value.trim() === '');
 }
 
 function toArray(list) {
@@ -374,14 +388,29 @@ function isDamuRender(node) {
 }
 
 function unshiftIntoBlock(path, statement) {
-  switch (path.node.type) {
+  let blockPath = path.scope.path;
+
+  switch (blockPath.node.type) {
     case 'ArrowFunctionExpression':
     case 'FunctionExpression':
     case 'FunctionDeclaration':
-      path.get('body').unshiftContainer('body', statement);
-      return;
-    default:
-      path.unshiftContainer('body', statement);
+      blockPath = blockPath.get('body');
+      break;
+  }
+
+  const blockList = blockPath.get('body');
+  let findParent = path;
+  while (findParent) {
+    if (blockList.includes(findParent)) {
+      break;
+    }
+    findParent = findParent.parentPath;
+  }
+  if (findParent) {
+    findParent.insertBefore(statement);
+  } else {
+    // give up
+    blockPath.unshiftContainer('body', statement);
   }
 }
 

@@ -8,9 +8,11 @@ Damu.render(
       </li>
     ))}
     {shop.followers.map((follower, index) => (
-      <li>
-        {index}. {follower.firstName} - {follower.lastName}
-      </li>
+      <>
+        <li>
+          {index}. {follower.firstName} - {follower.lastName}
+        </li>
+      </>
     ))}
   </li>,
   document.querySelector('#app')

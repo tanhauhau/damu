@@ -114,5 +114,6 @@
     "presets": [
       "react-app"
     ]
-  }
+  },
+  "homepage": "http://tanhauhau.github.io/damu"
 }

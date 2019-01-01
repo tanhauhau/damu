@@ -20,7 +20,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: "Damu.render(<div />, document.getElementId('app'))",
+      value: demos.simple,
       transpiled: '',
       error: null,
     };
@@ -49,7 +49,7 @@ class App extends Component {
         plugins: [damuPlugin],
       })
       .then(result => {
-        this.setState({ transpiled: result.code });
+        this.setState({ transpiled: simplePrettier(result.code) });
       })
       .catch(error => {
         this.setState({ transpiled: '', error: error.message });
@@ -80,6 +80,7 @@ class App extends Component {
         <div className="App">
           <AceEditor
             height="calc(100vh - 50px)"
+            width="50vw"
             mode="jsx"
             theme="tomorrow"
             fontSize={14}
@@ -97,6 +98,7 @@ class App extends Component {
 
           <AceEditor
             height="calc(100vh - 50px)"
+            width="50vw"
             mode="javascript"
             theme="tomorrow"
             readOnly={true}
@@ -113,6 +115,15 @@ class App extends Component {
       </>
     );
   }
+}
+
+function simplePrettier(code) {
+  return code
+    .split('\n')
+    .filter(line => line.trim() !== '')
+    .map(line => (/^(const|document)/.test(line) ? '\n' + line : line))
+    .join('\n')
+    .trim();
 }
 
 export default App;

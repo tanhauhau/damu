@@ -20,7 +20,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: demos.simple,
+      value: demos['01 simple'],
       transpiled: '',
       error: null,
       previewMode: 'both',

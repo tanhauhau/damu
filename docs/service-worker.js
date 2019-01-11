@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/damu/precache-manifest.e03cc8c9fd4fd537afbb5841bbeaf91a.js"
+  "/damu/precache-manifest.7d5d926cb75dffac393475a4a2f37b79.js"
 );
 
 workbox.clientsClaim();

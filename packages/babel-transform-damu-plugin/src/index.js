@@ -44,12 +44,22 @@ export default declare((api, options) => {
           }
         },
       },
+      ImportDeclaration (path) {
+        if(['react', 'react-dom'].includes(path.node.source.value)) {
+          path.remove();
+        }
+      },
       Program: {
         exit(path) {
-          const DamuBindings = path.scope.bindings.Damu;
-          if (DamuBindings) {
-            DamuBindings.path.remove();
-          }
+          const reactBindings = [
+            path.scope.bindings.React,
+            path.scope.bindings.ReactDOM,
+          ];
+          reactBindings.forEach(binding => {
+            if (binding) {
+              binding.path.remove();
+            }
+          });
           // // console.log(path.scope.bindings.Damu.referencePaths.length);
           // console.log('');
           // console.log('');
@@ -381,7 +391,7 @@ function isDamuRender(node) {
     node.callee.type === 'MemberExpression' &&
     node.callee.object &&
     node.callee.object.type === 'Identifier' &&
-    node.callee.object.name === 'Damu' &&
+    node.callee.object.name === 'ReactDOM' &&
     node.callee.property.type === 'Identifier' &&
     node.callee.property.name === 'render'
   );

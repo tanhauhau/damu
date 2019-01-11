@@ -1,0 +1,40 @@
+:local {
+  .App {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    text-align: center;
+    color: #612e77;
+    background-color: #faf0fd;
+  }
+
+  .App div {
+    margin: auto;
+  }
+
+  .title {
+    text-transform: uppercase;
+    font-size: 8em;
+    margin: 0;
+  }
+
+  .subtitle {
+    font-size: 2em;
+  }
+
+  .button {
+    text-transform: uppercase;
+    font-size: 1.5em;
+    padding: 8px 32px;
+    margin-top: 16px;
+    color: white;
+    background-color: #612e77;
+    outline: none;
+    cursor: pointer;
+
+    &:hover {
+      background-color: mix(#612e77, white, 85);
+    }
+  }
+}

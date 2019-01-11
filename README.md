@@ -1,12 +1,10 @@
-# WIP: damu
+# WIP: [DAMU](https://lihautan.com/damu/)
 
 > Note: this is not production ready.
 
-> Insprired by [svelte](https://svelte.technology/), but written by myself.
+> Damu compiles React application into plain Vanilla JavaScript application.
 
-Converts jsx to vanilla javascript
-
-[Try out Damu here](https://lihautan.com/damu/)
+[Try out Damu here](https://lihautan.com/damu/#/repl)
 
 Converts:
 

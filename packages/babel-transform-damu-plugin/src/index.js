@@ -1,6 +1,8 @@
 import jsx from '@babel/plugin-syntax-jsx';
 import { declare } from '@babel/helper-plugin-utils';
 import * as t from '@babel/types';
+import { APPEND_CHILDREN } from './boilerplates';
+import Flags from './flags';
 
 export default declare((api, options) => {
   api.assertVersion(7);
@@ -35,17 +37,26 @@ export default declare((api, options) => {
         });
       },
       CallExpression: {
+        enter(path) {
+          if (
+            ['ArrowFunctionExpression', 'FunctionExpression'].includes(
+              path.get('arguments.0.type').node
+            )
+          ) {
+            normalizeBlockStatement(path.get('arguments.0.body'));
+          }
+        },
         exit(path) {
           if (isDamuRender(path.node)) {
             const args = path.node.arguments;
             const elem = args[0];
             const target = args[1];
-            path.replaceWith(appendChild(target, elem));
+            path.replaceWith(appendChild(target, elem, path));
           }
         },
       },
-      ImportDeclaration (path) {
-        if(['react', 'react-dom'].includes(path.node.source.value)) {
+      ImportDeclaration(path) {
+        if (['react', 'react-dom'].includes(path.node.source.value)) {
           path.remove();
         }
       },
@@ -60,13 +71,10 @@ export default declare((api, options) => {
               binding.path.remove();
             }
           });
-          // // console.log(path.scope.bindings.Damu.referencePaths.length);
-          // console.log('');
-          // console.log('');
-          // console.log('');
-          // console.log('');
-          // console.log('');
-          // console.log('');
+
+          if (path[Flags.APPEND_CHILDREN]) {
+            path.pushContainer('body', APPEND_CHILDREN);
+          }
         },
       },
     },
@@ -113,7 +121,7 @@ function transformJSXElement(path, parent) {
   childrens.forEach(children => result.push(...children));
 
   if (parent) {
-    result.push(appendChild(parent, identifier));
+    result.push(appendChild(parent, identifier, path));
   }
 
   return {
@@ -128,7 +136,7 @@ function transformJSXText(path, parent) {
     documentCreateTextNode(identifier, t.stringLiteral(path.node.value)),
   ];
   if (parent) {
-    statements.push(appendChild(parent, identifier));
+    statements.push(appendChild(parent, identifier, path));
   }
   return {
     identifier,
@@ -137,6 +145,7 @@ function transformJSXText(path, parent) {
 }
 
 function transformJSXExpression(path, parent) {
+  console.log(path);
   switch (path.node.expression.type) {
     case 'BinaryExpression':
       return transformBinaryExpression(path.get('expression'), parent);
@@ -157,7 +166,7 @@ function transformBinaryExpression(path, parent) {
   const identifier = path.scope.generateUidIdentifier('result');
   const statements = [documentCreateTextNode(identifier, path.node)];
   if (parent) {
-    statements.push(appendChild(parent, identifier));
+    statements.push(appendChild(parent, identifier, path));
   }
   return {
     identifier,
@@ -174,7 +183,7 @@ function transformCallExpression(path, parent) {
   const identifier = path.scope.generateUidIdentifier('result');
   const statements = [declareConst(identifier, path.node)];
   if (parent) {
-    statements.push(appendChild(parent, identifier));
+    statements.push(appendChild(parent, identifier, path));
   }
   return {
     identifier,
@@ -193,7 +202,7 @@ function transformMapCallExpresion(path, parent) {
     );
     if (returnStatement) {
       returnStatement.replaceWith(
-        appendChild(parent, returnStatement.node.argument)
+        appendChild(parent, returnStatement.node.argument, path)
       );
     }
     const statements = [t.expressionStatement(path.node)];
@@ -266,7 +275,7 @@ function transformConditionalExpression(path, parent) {
 
 function transformIdentifier(path, parent) {
   const identifier = path.node;
-  const statements = parent ? [appendChild(parent, identifier)] : [];
+  const statements = parent ? [appendChild(parent, identifier, path)] : [];
   return {
     identifier,
     statements,
@@ -319,30 +328,12 @@ function declareConst(identifier, value) {
   ]);
 }
 
-function appendChild(parent, child) {
-  switch (child.type) {
-    case 'ArrayExpression':
-      return t.expressionStatement(
-        t.sequenceExpression(
-          child.elements.map(c => appendChild(parent, c).expression)
-        )
-      );
-    case 'JSXFragment':
-      return t.expressionStatement(
-        t.sequenceExpression(
-          child.children
-            .filter(isEmptyJSXTextNode)
-            .map(c => appendChild(parent, c).expression)
-        )
-      );
-    default:
-      return t.expressionStatement(
-        t.callExpression(
-          t.memberExpression(parent, t.identifier('appendChild')),
-          [child]
-        )
-      );
-  }
+function appendChild(parent, child, path) {
+  findProgram(path)[Flags.APPEND_CHILDREN] = true;
+
+  return t.expressionStatement(
+    t.callExpression(t.identifier('__damu__appendChildren'), [parent, child])
+  );
 }
 
 function setAttribute(identifier, key, value) {
@@ -437,4 +428,8 @@ function isMapCallExpression(node) {
       node.arguments[0].type
     )
   );
+}
+
+function findProgram(path) {
+  return path.findParent(parent => parent.isProgram());
 }

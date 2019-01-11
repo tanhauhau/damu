@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 import AceEditor from 'react-ace';
 import 'brace';
@@ -17,11 +17,21 @@ const demoList = Object.keys(demos);
 const EDITOR_PROPS = { $blockScrolling: true };
 const ACE_PREVIEW_OPTIONS = { useWorker: false };
 
+function getSelectedFromHash(hash) {
+  hash = decodeURIComponent(hash.slice(1));
+  if (demoList.includes(hash)) {
+    return hash;
+  }
+  return '01 simple';
+}
+
 class Demo extends Component {
   constructor(props) {
     super(props);
+    const selectedDemo = getSelectedFromHash(props.location.hash);
     this.state = {
-      value: demos['01 simple'],
+      value: demos[selectedDemo],
+      selectedDemo,
       transpiled: '',
       error: null,
       previewMode: 'both',
@@ -33,8 +43,15 @@ class Demo extends Component {
   };
 
   onChangeTemplate = event => {
-    const value = demos[event.currentTarget.value];
+    this.props.history.replace(
+      this.props.location.pathname + '#' + event.currentTarget.value
+    );
+  };
+
+  onChangeDemo = selectedDemo => {
+    const value = demos[selectedDemo];
     this.setState({
+      selectedDemo,
       value,
       error: null,
     });
@@ -49,6 +66,12 @@ class Demo extends Component {
 
   componentDidMount() {
     this.transpile(this.state.value);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.location.hash !== this.props.location.hash) {
+      this.onChangeDemo(getSelectedFromHash(this.props.location.hash));
+    }
   }
 
   transpile = code => {
@@ -74,6 +97,7 @@ class Demo extends Component {
         }
       })
       .catch(error => {
+        console.error(error);
         this.setState({ transpiled: '', error: error.message });
         if (this.iframe) {
           while (this.iframe.firstChild) {
@@ -92,10 +116,15 @@ class Demo extends Component {
     return (
       <>
         <div className={styles.navbar}>
-          <Link to="/" className={styles.brand}>Damu</Link>
+          <Link to="/" className={styles.brand}>
+            Damu
+          </Link>
           <label>
             {'Demo: '}
-            <select onChange={this.onChangeTemplate}>
+            <select
+              onChange={this.onChangeTemplate}
+              value={this.state.selectedDemo}
+            >
               {demoList.map(demo => (
                 <option key={demo} value={demo}>
                   {demo}
@@ -128,7 +157,9 @@ class Demo extends Component {
             enableLiveAutocompletion={true}
             showLineNumbers={true}
           />
-          <div className={styles.preview + ' ' + styles['preview-'+previewMode]}>
+          <div
+            className={styles.preview + ' ' + styles['preview-' + previewMode]}
+          >
             <div className={styles.previewDashboard}>
               <div>
                 <label>
@@ -194,7 +225,7 @@ function simplePrettier(code) {
     .split('\n')
     .filter(line => line.trim() !== '')
     .map(line =>
-      /^[\s\t]*(const|document|if)/.test(line) ? '\n' + line : line
+      /^[\s\t]*(const|document|if|function)/.test(line) ? '\n' + line : line
     )
     .join('\n')
     .trim();
@@ -209,4 +240,4 @@ function codeToHtml(code) {
   </html>`;
 }
 
-export default Demo;
+export default withRouter(Demo);

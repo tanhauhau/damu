@@ -6,6 +6,9 @@ runner(
   {},
   {
     sourceType: 'unambiguous',
-    plugins: [require.resolve('../src')],
+    plugins: [
+      '@babel/plugin-proposal-class-properties',
+      require.resolve('../src'),
+    ],
   }
 );

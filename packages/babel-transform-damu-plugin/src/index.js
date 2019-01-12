@@ -1,8 +1,8 @@
 import jsx from '@babel/plugin-syntax-jsx';
 import { declare } from '@babel/helper-plugin-utils';
 import * as t from '@babel/types';
-import { APPEND_CHILDREN } from './boilerplates';
-import Flags from './flags';
+import { APPEND_CHILDREN, APPEND_CHILD_WITH_COMPONENT } from './boilerplates';
+import Flags, { turnOnFlag } from './flags';
 
 import { setAttribute } from './utils/attributes';
 
@@ -41,6 +41,7 @@ export default declare((api, options) => {
       CallExpression: {
         enter(path) {
           if (
+            path.has('arguments.0.type') &&
             ['ArrowFunctionExpression', 'FunctionExpression'].includes(
               path.get('arguments.0.type').node
             )
@@ -75,7 +76,11 @@ export default declare((api, options) => {
           });
 
           if (path[Flags.APPEND_CHILDREN]) {
-            path.pushContainer('body', APPEND_CHILDREN);
+            if (path[Flags.APPEND_COMPONENT]) {
+              path.pushContainer('body', APPEND_CHILD_WITH_COMPONENT);
+            } else {
+              path.pushContainer('body', APPEND_CHILDREN);
+            }
           }
         },
       },
@@ -104,6 +109,26 @@ function transformElement(path, parent) {
 function transformJSXElement(path, parent) {
   const name = getIdentifierName(path.node.openingElement.name);
   const identifier = path.scope.generateUidIdentifier(name);
+  turnOnFlag(path, Flags.APPEND_COMPONENT);
+
+  if (/^[A-Z]/.test(name)) {
+    // component
+    const statements = [
+      t.expressionStatement(
+        t.assignmentExpression(
+          '=',
+          identifier,
+          t.newExpression(t.identifier(name), [])
+        )
+      ),
+    ];
+    return {
+      identifier,
+      statements,
+    };
+  } else {
+    // dom
+  }
 
   const result = [];
 
@@ -330,7 +355,7 @@ function declareConst(identifier, value) {
 }
 
 function appendChild(parent, child, path) {
-  findProgram(path)[Flags.APPEND_CHILDREN] = true;
+  turnOnFlag(path, Flags.APPEND_CHILDREN);
 
   return t.expressionStatement(
     t.callExpression(t.identifier('__damu__appendChildren'), [parent, child])
@@ -380,11 +405,11 @@ function isDamuRender(node) {
 
 function unshiftIntoBlock(path, statement) {
   let blockPath = path.scope.path;
-
   switch (blockPath.node.type) {
     case 'ArrowFunctionExpression':
     case 'FunctionExpression':
     case 'FunctionDeclaration':
+    case 'ClassMethod':
       blockPath = blockPath.get('body');
       break;
   }
@@ -418,8 +443,4 @@ function isMapCallExpression(node) {
       node.arguments[0].type
     )
   );
-}
-
-function findProgram(path) {
-  return path.findParent(parent => parent.isProgram());
 }

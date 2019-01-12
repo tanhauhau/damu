@@ -10,6 +10,7 @@ import 'brace/theme/tomorrow';
 
 import * as babel from '@babel/core';
 import damuPlugin from '@damu/babel-transform-damu-plugin';
+import classPropertiesPlugin from '@babel/plugin-proposal-class-properties';
 import demos from './demos';
 
 import styles from './Demo.scss';
@@ -78,7 +79,7 @@ class Demo extends Component {
   transpile = code => {
     babel
       .transformAsync(code, {
-        plugins: [damuPlugin],
+        plugins: [classPropertiesPlugin, damuPlugin],
       })
       .then(result => {
         this.setState({ transpiled: simplePrettier(result.code) });
@@ -145,8 +146,8 @@ class Demo extends Component {
             </div>
             <div className={styles.App}>
               <AceEditor
-                height={match ? "calc(100vh - 50px)" : '80vh'}
-                width={match ? "50vw" : '100vw'}
+                height={match ? 'calc(100vh - 50px)' : '80vh'}
+                width={match ? '50vw' : '100vw'}
                 mode="jsx"
                 theme="tomorrow"
                 fontSize={14}
@@ -204,7 +205,7 @@ class Demo extends Component {
                 </div>
                 <AceEditor
                   height={`calc(${previewMode === 'code' ? 100 : 50}vh - 80px)`}
-                  width={match ? "50vw" : '100vw'}
+                  width={match ? '50vw' : '100vw'}
                   mode="javascript"
                   theme="tomorrow"
                   readOnly={true}

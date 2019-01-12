@@ -1,6 +1,7 @@
-const Damu = require('@damu/damu');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
-Damu.render(
+ReactDOM.render(
   <>
     <div className="child-1" />
     <div className="child-2" />

@@ -1,13 +1,13 @@
 const _lists = buyers.map(buyer => {
   const _li = document.createElement("li");
 
-  _li.appendChild(buyer.firstName);
+  __damu__appendChildren(_li, buyer.firstName);
 
   const _text = document.createTextNode(" - ");
 
-  _li.appendChild(_text);
+  __damu__appendChildren(_li, _text);
 
-  _li.appendChild(buyer.lastName);
+  __damu__appendChildren(_li, buyer.lastName);
 
   return _li;
 });
@@ -15,21 +15,28 @@ const _lists = buyers.map(buyer => {
 const _lists2 = shop.followers.map(function (follower, index) {
   const _li2 = document.createElement("li");
 
-  _li2.appendChild(index);
+  __damu__appendChildren(_li2, index);
 
   const _text2 = document.createTextNode(". ");
 
-  _li2.appendChild(_text2);
+  __damu__appendChildren(_li2, _text2);
 
-  _li2.appendChild(follower.firstName);
+  __damu__appendChildren(_li2, follower.firstName);
 
   const _text3 = document.createTextNode(" - ");
 
-  _li2.appendChild(_text3);
+  __damu__appendChildren(_li2, _text3);
 
-  _li2.appendChild(follower.lastName);
+  __damu__appendChildren(_li2, follower.lastName);
 
   return _li2;
 });
 
-document.querySelector('#app').appendChild(_lists), document.querySelector('#app').appendChild(_lists2);
+__damu__appendChildren(document.querySelector('#app'), [_lists, _lists2]);
+
+function __damu__appendChildren(parent, children) {
+  children = Array.isArray(children) ? children : [children];
+  children.forEach(function (child) {
+    parent.appendChild(child);
+  });
+}

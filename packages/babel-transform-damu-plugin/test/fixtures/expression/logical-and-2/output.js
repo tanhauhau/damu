@@ -5,9 +5,9 @@ if (foo && foo1 && foo2) {
 
   const _text = document.createTextNode("foo text");
 
-  _efoo.appendChild(_text);
+  __damu__appendChildren(_efoo, _text);
 
-  _div.appendChild(_efoo);
+  __damu__appendChildren(_div, _efoo);
 }
 
 if (bar && bar.foo && bar.foo.baz) {
@@ -15,9 +15,16 @@ if (bar && bar.foo && bar.foo.baz) {
 
   const _text2 = document.createTextNode("text");
 
-  _ebar.appendChild(_text2);
+  __damu__appendChildren(_ebar, _text2);
 
-  _div.appendChild(_ebar);
+  __damu__appendChildren(_div, _ebar);
 }
 
-document.querySelector('#app').appendChild(_div);
+__damu__appendChildren(document.querySelector('#app'), _div);
+
+function __damu__appendChildren(parent, children) {
+  children = Array.isArray(children) ? children : [children];
+  children.forEach(function (child) {
+    parent.appendChild(child);
+  });
+}

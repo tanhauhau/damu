@@ -1,23 +1,30 @@
 const _div = document.createElement("div");
 
 if (foo) {
-  _div.appendChild(foo);
+  __damu__appendChildren(_div, foo);
 } else {
   const _efoo = document.createElement("efoo");
 
-  _div.appendChild(_efoo);
+  __damu__appendChildren(_div, _efoo);
 }
 
 if (bar.foo) {
-  _div.appendChild(bar.foo);
+  __damu__appendChildren(_div, bar.foo);
 } else {
   const _ebar = document.createElement("ebar");
 
   const _text = document.createTextNode("text");
 
-  _ebar.appendChild(_text);
+  __damu__appendChildren(_ebar, _text);
 
-  _div.appendChild(_ebar);
+  __damu__appendChildren(_div, _ebar);
 }
 
-document.querySelector('#app').appendChild(_div);
+__damu__appendChildren(document.querySelector('#app'), _div);
+
+function __damu__appendChildren(parent, children) {
+  children = Array.isArray(children) ? children : [children];
+  children.forEach(function (child) {
+    parent.appendChild(child);
+  });
+}

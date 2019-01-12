@@ -9,11 +9,18 @@
 Converts:
 
 ```jsx
-const Damu = require('@damu/damu');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
-Damu.render(
-  <div className="foo" foo="bar">
-    <a href="http://github.com/tanhauhau/damu">Damu</a>
+ReactDOM.render(
+  <div>
+    <a
+      href="https://github.com/tanhauhau/damu"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      Damu
+    </a>
   </div>,
   document.querySelector('#app')
 );
@@ -22,19 +29,24 @@ Damu.render(
 into:
 
 ```js
-const Damu = require('@damu/damu');
+const _div = document.createElement("div");
 
-const div = document.createElement('div');
-div.setAttribute('class', 'foo');
-div.setAttribute('foo', 'bar');
+const _a = document.createElement("a");
+_a.setAttribute("href", "https://github.com/tanhauhau/damu");
+_a.setAttribute("rel", "noopener noreferrer");
+_a.setAttribute("target", "_blank");
 
-const a = document.createElement('a');
-a.setAttribute('href', 'http://github.com/tanhauhau/damu');
-a.textContent = 'Damu';
-div.appendChild(a);
+const _text = document.createTextNode("Damu");
+__damu__appendChildren(_a, _text);
+__damu__appendChildren(_div, _a);
+__damu__appendChildren(document.querySelector('#app'), _div);
 
-const app = document.querySelector('#app');
-app.appendChild(div);
+function __damu__appendChildren(parent, children) {
+  children = Array.isArray(children) ? children : [children];
+  children.forEach(function (child) {
+    parent.appendChild(child);
+  });
+}
 ```
 
 ## The Damu-Madu Project

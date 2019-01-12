@@ -145,7 +145,6 @@ function transformJSXText(path, parent) {
 }
 
 function transformJSXExpression(path, parent) {
-  console.log(path);
   switch (path.node.expression.type) {
     case 'BinaryExpression':
       return transformBinaryExpression(path.get('expression'), parent);

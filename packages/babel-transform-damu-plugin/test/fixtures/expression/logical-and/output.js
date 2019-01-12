@@ -3,7 +3,7 @@ const _div = document.createElement("div");
 if (foo) {
   const _efoo = document.createElement("efoo");
 
-  _div.appendChild(_efoo);
+  __damu__appendChildren(_div, _efoo);
 }
 
 if (bar.foo) {
@@ -11,9 +11,16 @@ if (bar.foo) {
 
   const _text = document.createTextNode("text");
 
-  _ebar.appendChild(_text);
+  __damu__appendChildren(_ebar, _text);
 
-  _div.appendChild(_ebar);
+  __damu__appendChildren(_div, _ebar);
 }
 
-document.querySelector('#app').appendChild(_div);
+__damu__appendChildren(document.querySelector('#app'), _div);
+
+function __damu__appendChildren(parent, children) {
+  children = Array.isArray(children) ? children : [children];
+  children.forEach(function (child) {
+    parent.appendChild(child);
+  });
+}

@@ -1,6 +1,7 @@
-const Damu = require('@damu/damu');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
-Damu.render(
+ReactDOM.render(
   <div className="body">
     <h1 className="header">You shall not pass</h1>
     <li>

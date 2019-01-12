@@ -6,4 +6,11 @@ const _div2 = document.createElement("div");
 
 _div2.setAttribute("className", "child-2");
 
-document.querySelector('#app').appendChild(_div), document.querySelector('#app').appendChild(_div2);
+__damu__appendChildren(document.querySelector('#app'), [_div, _div2]);
+
+function __damu__appendChildren(parent, children) {
+  children = Array.isArray(children) ? children : [children];
+  children.forEach(function (child) {
+    parent.appendChild(child);
+  });
+}

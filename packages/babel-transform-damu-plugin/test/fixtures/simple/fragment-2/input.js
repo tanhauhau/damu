@@ -1,4 +1,5 @@
-const Damu = require('@damu/damu');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
 const frag = (
   <>
@@ -7,4 +8,4 @@ const frag = (
   </>
 );
 
-Damu.render(frag, document.querySelector('#app'));
+ReactDOM.render(frag, document.querySelector('#app'));

@@ -1,6 +1,7 @@
-const Damu = require('@damu/damu');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
-Damu.render(
+ReactDOM.render(
   <div>
     {foo && foo1 && foo2 && <efoo>foo text</efoo>}
     {bar && bar.foo && bar.foo.baz && <ebar>text</ebar>}

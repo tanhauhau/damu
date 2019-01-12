@@ -1,8 +1,9 @@
-const Damu = require('@damu/damu');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
 const height = 54;
 
-Damu.render(
+ReactDOM.render(
   <div id="foo" foo={'bar'} height={height} />,
   document.querySelector('#app')
 );

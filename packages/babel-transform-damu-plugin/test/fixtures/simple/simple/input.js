@@ -1,3 +1,4 @@
-const Damu = require('@damu/damu');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
-Damu.render(<div />, document.querySelector('#app'));
+ReactDOM.render(<div />, document.querySelector('#app'));

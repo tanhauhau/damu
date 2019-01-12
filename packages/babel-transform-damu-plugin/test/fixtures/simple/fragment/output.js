@@ -1,10 +1,10 @@
 const _div = document.createElement("div");
 
-_div.setAttribute("className", "child-1");
+_div.className = "child-1";
 
 const _div2 = document.createElement("div");
 
-_div2.setAttribute("className", "child-2");
+_div2.className = "child-2";
 
 __damu__appendChildren(document.querySelector('#app'), [_div, _div2]);
 

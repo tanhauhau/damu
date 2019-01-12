@@ -4,6 +4,8 @@ import * as t from '@babel/types';
 import { APPEND_CHILDREN } from './boilerplates';
 import Flags from './flags';
 
+import { setAttribute } from './utils/attributes';
+
 export default declare((api, options) => {
   api.assertVersion(7);
   return {
@@ -109,7 +111,7 @@ function transformJSXElement(path, parent) {
   result.push(declaration);
 
   const attributes = path.node.openingElement.attributes.map(attr =>
-    setAttribute(identifier, attr.name.name, attr.value)
+    setAttribute(identifier, attr.name.name, attr.value, path)
   );
   attributes.forEach(attr => result.push(attr));
 
@@ -332,17 +334,6 @@ function appendChild(parent, child, path) {
 
   return t.expressionStatement(
     t.callExpression(t.identifier('__damu__appendChildren'), [parent, child])
-  );
-}
-
-function setAttribute(identifier, key, value) {
-  let _value =
-    value.type === 'JSXExpressionContainer' ? value.expression : value;
-  return t.expressionStatement(
-    t.callExpression(
-      t.memberExpression(identifier, t.identifier('setAttribute')),
-      [t.stringLiteral(key), _value]
-    )
   );
 }
 

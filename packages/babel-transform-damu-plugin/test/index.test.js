@@ -5,6 +5,7 @@ runner(
   'babel-transform-damu',
   {},
   {
+    sourceType: 'unambiguous',
     plugins: [require.resolve('../src')],
   }
 );

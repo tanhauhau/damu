@@ -1,18 +1,9 @@
 const _div = document.createElement("div");
 
-_div.className = "parent";
-
-const _div2 = document.createElement("div");
-
-_div2.className = "child-1";
-
-__damu__appendChildren(_div, _div2);
-
-const _div3 = document.createElement("div");
-
-_div3.className = "child-2";
-
-__damu__appendChildren(_div, _div3);
+_div.style.border = '1px solid black';
+_div.style.color = 'red';
+_div.style.paddingTop = "30px";
+_div.style.fontFamily = 'Verdana';
 
 __damu__appendChildren(document.querySelector('#app'), _div);
 

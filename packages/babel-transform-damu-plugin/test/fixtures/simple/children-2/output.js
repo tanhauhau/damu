@@ -1,10 +1,10 @@
 const _div = document.createElement("div");
 
-_div.setAttribute("className", "body");
+_div.className = "body";
 
 const _h = document.createElement("h1");
 
-_h.setAttribute("className", "header");
+_h.className = "header";
 
 const _text = document.createTextNode("You shall not pass");
 

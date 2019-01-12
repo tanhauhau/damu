@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
+import MediaQuery from 'react-responsive';
 
 import AceEditor from 'react-ace';
 import 'brace';
@@ -114,108 +115,114 @@ class Demo extends Component {
   render() {
     const { previewMode } = this.state;
     return (
-      <>
-        <div className={styles.navbar}>
-          <Link to="/" className={styles.brand}>
-            Damu
-          </Link>
-          <label>
-            {'Demo: '}
-            <select
-              onChange={this.onChangeTemplate}
-              value={this.state.selectedDemo}
-            >
-              {demoList.map(demo => (
-                <option key={demo} value={demo}>
-                  {demo}
-                </option>
-              ))}
-            </select>
-          </label>
-          <a
-            target="_blank"
-            rel="noreferrer noopener"
-            href="https://github.com/tanhauhau/damu"
-          >
-            View it on Github
-          </a>
-        </div>
-        <div className={styles.App}>
-          <AceEditor
-            height="calc(100vh - 50px)"
-            width="50vw"
-            mode="jsx"
-            theme="tomorrow"
-            fontSize={14}
-            onChange={this.onChange}
-            showGutter={true}
-            name="editor"
-            value={this.state.value}
-            editorProps={EDITOR_PROPS}
-            tabSize={2}
-            enableBasicAutocompletion={true}
-            enableLiveAutocompletion={true}
-            showLineNumbers={true}
-          />
-          <div
-            className={styles.preview + ' ' + styles['preview-' + previewMode]}
-          >
-            <div className={styles.previewDashboard}>
-              <div>
-                <label>
-                  <input
-                    id="both"
-                    value="both"
-                    name="preview-mode"
-                    type="radio"
-                    checked={previewMode === 'both'}
-                    onChange={this.onPreviewModeChange}
-                  />
-                  Both
-                </label>
-                <label>
-                  <input
-                    id="code"
-                    value="code"
-                    name="preview-mode"
-                    type="radio"
-                    checked={previewMode === 'code'}
-                    onChange={this.onPreviewModeChange}
-                  />
-                  Code
-                </label>
-                <label>
-                  <input
-                    id="html"
-                    value="html"
-                    name="preview-mode"
-                    type="radio"
-                    checked={previewMode === 'html'}
-                    onChange={this.onPreviewModeChange}
-                  />
-                  HTML
-                </label>
+      <MediaQuery minWidth={600}>
+        {match => (
+          <>
+            <div className={styles.navbar}>
+              <Link to="/" className={styles.brand}>
+                Damu
+              </Link>
+              <label>
+                {'Demo: '}
+                <select
+                  onChange={this.onChangeTemplate}
+                  value={this.state.selectedDemo}
+                >
+                  {demoList.map(demo => (
+                    <option key={demo} value={demo}>
+                      {demo}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <a
+                target="_blank"
+                rel="noreferrer noopener"
+                href="https://github.com/tanhauhau/damu"
+              >
+                View it on Github
+              </a>
+            </div>
+            <div className={styles.App}>
+              <AceEditor
+                height={match ? "calc(100vh - 50px)" : '80vh'}
+                width={match ? "50vw" : '100vw'}
+                mode="jsx"
+                theme="tomorrow"
+                fontSize={14}
+                onChange={this.onChange}
+                showGutter={true}
+                name="editor"
+                value={this.state.value}
+                editorProps={EDITOR_PROPS}
+                tabSize={2}
+                enableBasicAutocompletion={true}
+                enableLiveAutocompletion={true}
+                showLineNumbers={true}
+              />
+              <div
+                className={
+                  styles.preview + ' ' + styles['preview-' + previewMode]
+                }
+              >
+                <div className={styles.previewDashboard}>
+                  <div>
+                    <label>
+                      <input
+                        id="both"
+                        value="both"
+                        name="preview-mode"
+                        type="radio"
+                        checked={previewMode === 'both'}
+                        onChange={this.onPreviewModeChange}
+                      />
+                      Both
+                    </label>
+                    <label>
+                      <input
+                        id="code"
+                        value="code"
+                        name="preview-mode"
+                        type="radio"
+                        checked={previewMode === 'code'}
+                        onChange={this.onPreviewModeChange}
+                      />
+                      Code
+                    </label>
+                    <label>
+                      <input
+                        id="html"
+                        value="html"
+                        name="preview-mode"
+                        type="radio"
+                        checked={previewMode === 'html'}
+                        onChange={this.onPreviewModeChange}
+                      />
+                      HTML
+                    </label>
+                  </div>
+                </div>
+                <AceEditor
+                  height={`calc(${previewMode === 'code' ? 100 : 50}vh - 80px)`}
+                  width={match ? "50vw" : '100vw'}
+                  mode="javascript"
+                  theme="tomorrow"
+                  readOnly={true}
+                  fontSize={14}
+                  showGutter={true}
+                  name="preview"
+                  value={this.state.error || this.state.transpiled}
+                  editorProps={EDITOR_PROPS}
+                  tabSize={2}
+                  showLineNumbers={true}
+                  setOptions={ACE_PREVIEW_OPTIONS}
+                />
+                <div ref={this.onIframeRef} />
               </div>
             </div>
-            <AceEditor
-              height={`calc(${previewMode === 'code' ? 100 : 50}vh - 80px)`}
-              width="50vw"
-              mode="javascript"
-              theme="tomorrow"
-              readOnly={true}
-              fontSize={14}
-              showGutter={true}
-              name="preview"
-              value={this.state.error || this.state.transpiled}
-              editorProps={EDITOR_PROPS}
-              tabSize={2}
-              showLineNumbers={true}
-              setOptions={ACE_PREVIEW_OPTIONS}
-            />
-            <div ref={this.onIframeRef} />
-          </div>
-        </div>
-      </>
+          </>
+        )}
+      </MediaQuery>
     );
   }
 }

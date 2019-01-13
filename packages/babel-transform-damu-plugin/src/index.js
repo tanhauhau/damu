@@ -53,7 +53,7 @@ export default declare((api, options) => {
           }
         },
         exit(path) {
-          if (isDamuRender(path.node)) {
+          if (isDamuRender(path)) {
             const args = path.node.arguments;
             const elem = args[0];
             const target = args[1];
@@ -66,7 +66,19 @@ export default declare((api, options) => {
           path.remove();
         }
       },
-      ClassDeclaration(path) {},
+      ClassDeclaration(path) {
+        if (
+          path.has('superClass') &&
+          ((path.get('superClass').isMemberExpression() &&
+            path.get('superClass.object').isIdentifier({ name: 'React' }) &&
+            path
+              .get('superClass.property')
+              .isIdentifier({ name: 'Component' })) ||
+            path.get('superClass').isIdentifier({ name: 'Component ' }))
+        ) {
+          transformElement(path);
+        }
+      },
       Program: {
         exit(path) {
           const reactBindings = [
@@ -92,15 +104,12 @@ export default declare((api, options) => {
   };
 });
 
-function isDamuRender(node) {
+function isDamuRender(path) {
   return (
-    node.callee &&
-    node.callee.type === 'MemberExpression' &&
-    node.callee.object &&
-    node.callee.object.type === 'Identifier' &&
-    node.callee.object.name === 'ReactDOM' &&
-    node.callee.property.type === 'Identifier' &&
-    node.callee.property.name === 'render'
+    path.has('callee') &&
+    path.get('callee').isMemberExpression() &&
+    path.get('callee.object').isIdentifier({ name: 'ReactDOM' }) &&
+    path.get('callee.property').isIdentifier({ name: 'render' })
   );
 }
 

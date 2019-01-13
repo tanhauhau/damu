@@ -9,6 +9,7 @@ import { setAttribute } from './attributes';
 import { documentCreateElement } from '../api/document/create-element';
 import { documentCreateTextNode } from '../api/document/create-text-node';
 import { appendChild } from '../api/append-child';
+import Flags, { turnOnFlag } from '../flags';
 
 injectTransformer('JSXElement', transformJSXElement);
 injectTransformer('JSXText', transformJSXText);

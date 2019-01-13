@@ -31,7 +31,7 @@ function transformBinaryExpression(path, parent) {
 }
 
 export function transformCallExpression(path, parent) {
-  if (isMapCallExpression(path.node)) {
+  if (isMapCallExpression(path)) {
     return transformMapCallExpresion(path, parent);
   }
 
@@ -53,9 +53,7 @@ export function transformMapCallExpresion(path, parent) {
     // arr.forEach(i => parent.appendChild(i))
     path.get('callee.property').replaceWith(t.identifier('forEach'));
     const mapperBody = path.get('arguments.0.body.body');
-    const returnStatement = mapperBody.find(
-      b => b.node.type === 'ReturnStatement'
-    );
+    const returnStatement = mapperBody.find(b => b.isReturnStatement());
     if (returnStatement) {
       returnStatement.replaceWith(
         appendChild(parent, returnStatement.node.argument, path)
@@ -66,7 +64,6 @@ export function transformMapCallExpresion(path, parent) {
   } else {
     // identifier = arr.map(i => i)
     const identifier = path.scope.generateUidIdentifier('lists');
-    // console.log(path.node);
     const statements = [declareConst(identifier, path.node)];
     return { identifier, statements };
   }

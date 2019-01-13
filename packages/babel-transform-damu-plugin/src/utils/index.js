@@ -35,17 +35,14 @@ export function ifBlock(condition, thenCase, elseCase) {
   );
 }
 
-export function isMapCallExpression(node) {
+export function isMapCallExpression(path) {
   return (
-    node.callee &&
-    node.callee.type === 'MemberExpression' &&
-    node.callee.property &&
-    node.callee.property.type === 'Identifier' &&
-    node.callee.property.name === 'map' &&
-    node.arguments &&
-    node.arguments.length === 1 &&
-    ['FunctionExpression', 'ArrowFunctionExpression'].includes(
-      node.arguments[0].type
-    )
+    path.has('callee') &&
+    path.get('callee').isMemberExpression() &&
+    path.get('callee.property').isIdentifier({ name: 'map' }) &&
+    path.has('arguments') &&
+    path.get('arguments').length === 1 &&
+    (path.get('arguments.0').isArrowFunctionExpression() ||
+      path.get('arguments.0').isFunctionExpression())
   );
 }

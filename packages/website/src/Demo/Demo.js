@@ -36,7 +36,7 @@ class Demo extends Component {
       selectedDemo,
       transpiled: '',
       error: null,
-      previewMode: 'both',
+      previewMode: 'code',
     };
   }
   onChange = value => {

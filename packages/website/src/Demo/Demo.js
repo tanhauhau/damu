@@ -9,8 +9,7 @@ import 'brace/mode/javascript';
 import 'brace/theme/tomorrow';
 
 import * as babel from '@babel/core';
-import damuPlugin from '@damu/babel-transform-damu-plugin';
-import classPropertiesPlugin from '@babel/plugin-proposal-class-properties';
+import damuPreset from '@damu/babel-preset-damu';
 import demos from './demos';
 
 import styles from './Demo.scss';
@@ -79,7 +78,7 @@ class Demo extends Component {
   transpile = code => {
     babel
       .transformAsync(code, {
-        plugins: [classPropertiesPlugin, damuPlugin],
+        presets: [damuPreset],
       })
       .then(result => {
         this.setState({ transpiled: simplePrettier(result.code) });

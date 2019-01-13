@@ -1,4 +1,4 @@
-'use strict';
+
 
 const fs = require('fs');
 const path = require('path');
@@ -268,6 +268,10 @@ module.exports = function(webpackEnv) {
         '@damu/babel-transform-damu-plugin': path.join(
           __dirname,
           '../../babel-transform-damu-plugin'
+        ),
+        '@damu/babel-preset-damu': path.join(
+          __dirname,
+          '../../babel-preset-damu'
         ),
       },
       plugins: [

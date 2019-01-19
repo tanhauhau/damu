@@ -49,6 +49,37 @@ function __damu__appendChildren(parent, children) {
 }
 ```
 
+## Features
+### React DOM
+- [x] HTML Elements
+- [ ] SVG Elements
+- [ ] Attributes
+  - [x] Event Listener
+  - [x] Styles
+  - [ ] Input attributes
+- [ ] Ref
+- [ ] ReactDOM.render
+- [ ] ReactDOM.unmountComponentAtNode
+- [ ] ReactDOM.createPortal
+
+### React
+- [ ] Functional Components
+- [ ] Class Components
+  - [ ] setState
+  - [ ] this.props
+  - [ ] this.state
+  - [ ] Lifecycle
+- [ ] Key
+- [ ] React.Context
+- [ ] React.Fragment
+- [ ] React.Children
+- [ ] React.memo
+- [ ] React.hooks
+  - [ ] useState
+  - [ ] useEffect
+  - [ ] useRef
+  - [ ] useReducer
+
 ## The Damu-Madu Project
 
 The Damu-Madu sister project aims to bring the developer experience of writing JSX (XML in JavaScript) without having to use React.
